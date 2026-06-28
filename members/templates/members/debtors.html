@@ -1,0 +1,39 @@
+{% extends "members/base.html" %}
+{% load money %}
+{% block content %}
+<div class="page-title">
+    <div class="title_left"><h3>Members Who Owe</h3></div>
+</div>
+
+<div class="x_panel">
+    <div class="x_title">
+        <h2>Total demanded: <span class="red">{{ total_demand|ugx }}</span></h2>
+        <div class="clearfix"></div>
+    </div>
+    <div class="x_content">
+        <table class="table table-bordered table-striped">
+            <thead>
+            <tr><th>Member ID</th><th>Name</th><th>Joined</th><th>Plan</th><th>Next Due</th><th>Overdue</th><th>Expected</th><th>Paid</th><th>Demand</th><th>Action</th></tr>
+            </thead>
+            <tbody>
+            {% for member in members %}
+            <tr>
+                <td>{{ member.member_id }}</td>
+                <td>{{ member.full_name }}</td>
+                <td>{{ member.joined_date }}</td>
+                <td>{{ member.get_plan_display }}</td>
+                <td>{{ member.next_due_date }}</td>
+                <td>{{ member.overdue_bucket }}</td>
+                <td>{{ member.total_expected|ugx }}</td>
+                <td>{{ member.total_paid|ugx }}</td>
+                <td class="red"><strong>{{ member.balance|ugx }}</strong></td>
+                <td><a class="btn btn-sm btn-info" href="{% url 'member_detail' member.pk %}">View Demand</a></td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="10">No debtors found.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

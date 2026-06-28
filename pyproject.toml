@@ -1,0 +1,2 @@
+[tool.vercel]
+entrypoint = "membership_system.wsgi:application"

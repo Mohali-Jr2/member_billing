@@ -1,0 +1,61 @@
+{% extends "members/base.html" %}
+{% block content %}
+<div class="page-title">
+    <div class="title_left"><h3>Roles</h3></div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="x_panel">
+            <div class="x_title"><h2>Patron</h2><div class="clearfix"></div></div>
+            <div class="x_content">
+                <p>Verifies and approves action requests, refunds, and activity fund requests.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="x_panel">
+            <div class="x_title"><h2>Treasurer</h2><div class="clearfix"></div></div>
+            <div class="x_content">
+                <p>Handles member records, payments, reminders, reports, and submitting requests for approval.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="x_panel">
+    <div class="x_title"><h2>Assign Account Roles</h2><div class="clearfix"></div></div>
+    <div class="x_content table-responsive">
+        <table class="table table-bordered table-striped">
+            <tr>
+                <th>Username</th>
+                <th>Name</th>
+                <th>Current Role</th>
+                <th>Assign Role</th>
+            </tr>
+            {% for row in user_rows %}
+            <tr>
+                <td>{{ row.user.username }}</td>
+                <td>{{ row.user.get_full_name|default:"" }}</td>
+                <td>{{ row.roles|join:", "|default:"No role" }}</td>
+                <td>
+                    <form method="post" class="form-inline">
+                        {% csrf_token %}
+                        <input type="hidden" name="user_id" value="{{ row.user.pk }}">
+                        <select name="role" class="form-control mr-2">
+                            <option value="">No role</option>
+                            {% for role in role_choices %}
+                                <option value="{{ role }}" {% if row.selected_role == role %}selected{% endif %}>{{ role }}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="submit" class="btn btn-sm btn-success">Save</button>
+                    </form>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4">No user accounts found.</td></tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+{% endblock %}

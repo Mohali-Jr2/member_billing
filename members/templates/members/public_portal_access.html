@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Member Portal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <style>
+        body { background: #f4f6f8; color: #20242b; font-family: "Segoe UI", Arial, sans-serif; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+        .portal-box { width: 100%; max-width: 420px; background: #fff; border: 1px solid #d9dee7; border-radius: 8px; box-shadow: 0 10px 24px rgba(25, 33, 46, 0.08); padding: 30px; }
+        h2 { font-size: 24px; font-weight: 800; margin-bottom: 8px; }
+        .muted { color: #667085; margin-bottom: 22px; }
+        label { font-weight: 700; color: #475467; }
+        .btn-primary { background: #0f9f8f; border-color: #0f9f8f; font-weight: 800; }
+    </style>
+</head>
+<body>
+    <div class="portal-box">
+        <h2>Member Portal</h2>
+        <p class="muted">Enter your generated member ID and phone number to view your balance and payments.</p>
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-info">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+        <form method="post">
+            {% csrf_token %}
+            {% for field in form %}
+                <div class="form-group">
+                    <label>{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}<div class="text-danger">{{ field.errors }}</div>{% endif %}
+                </div>
+            {% endfor %}
+            <button class="btn btn-primary btn-block">Open My Portal</button>
+        </form>
+        <p class="text-center mt-3"><a href="{% url 'login' %}">Staff login</a></p>
+    </div>
+    <script>
+        (function () {
+            function getCookie(name) {
+                var parts = document.cookie ? document.cookie.split(";") : [];
+                for (var i = 0; i < parts.length; i += 1) {
+                    var cookie = parts[i].trim();
+                    if (cookie.substring(0, name.length + 1) === name + "=") {
+                        return decodeURIComponent(cookie.substring(name.length + 1));
+                    }
+                }
+                return "";
+            }
+
+            document.addEventListener("submit", function (event) {
+                var form = event.target;
+                if (!form || String(form.method).toLowerCase() !== "post") {
+                    return;
+                }
+
+                var token = getCookie("csrftoken");
+                var input = form.querySelector("input[name='csrfmiddlewaretoken']");
+                if (token && input) {
+                    input.value = token;
+                }
+            }, true);
+        }());
+    </script>
+</body>
+</html>

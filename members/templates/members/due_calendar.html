@@ -1,0 +1,32 @@
+{% extends "members/base.html" %}
+{% load money %}
+{% block content %}
+<div class="page-title">
+    <div class="title_left"><h3>Due Calendar</h3></div>
+</div>
+
+<div class="x_panel">
+    <div class="x_content">
+        <form method="get" class="form-inline mb-3">
+            <input type="number" name="month" value="{{ month }}" min="1" max="12" class="form-control mr-2">
+            <input type="number" name="year" value="{{ year }}" min="2020" class="form-control mr-2">
+            <button class="btn btn-primary">View</button>
+        </form>
+        <p><strong>Total balance in this calendar:</strong> {{ total_due|ugx }}</p>
+        <table class="table table-bordered table-striped">
+            <tr><th>Due Date</th><th>Member</th><th>Plan</th><th>Balance</th><th>Action</th></tr>
+            {% for member in members %}
+            <tr>
+                <td>{{ member.next_due_date }}</td>
+                <td>{{ member.full_name }}</td>
+                <td>{{ member.get_plan_display }}</td>
+                <td>{{ member.balance|ugx }}</td>
+                <td><a href="{% url 'member_detail' member.pk %}" class="btn btn-sm btn-info">View</a></td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5">No members are due in this month.</td></tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+{% endblock %}

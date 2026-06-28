@@ -1,0 +1,26 @@
+{% extends "members/base.html" %}
+{% block content %}
+<div class="page-title">
+    <div class="title_left"><h3>Notification History</h3></div>
+</div>
+
+<div class="x_panel">
+    <div class="x_content">
+        <table class="table table-bordered table-striped">
+            <tr><th>Date</th><th>Member</th><th>Channel</th><th>Type</th><th>Status</th><th>Error</th></tr>
+            {% for item in notifications %}
+            <tr>
+                <td>{{ item.created_at }}</td>
+                <td><a href="{% url 'member_detail' item.member.pk %}">{{ item.member.full_name }}</a></td>
+                <td>{{ item.get_channel_display }}</td>
+                <td>{{ item.get_kind_display }}</td>
+                <td>{{ item.get_status_display }}</td>
+                <td>{{ item.error }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6">No notifications have been recorded.</td></tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+{% endblock %}

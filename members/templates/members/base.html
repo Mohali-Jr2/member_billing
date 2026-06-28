@@ -1,0 +1,135 @@
+{% load static %}
+{% load money %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Membership Billing System</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="{% static 'css/custom.css' %}?v=20260628-gentelella">
+</head>
+<body class="nav-md">
+<div class="app-shell">
+<div class="container body">
+    <div class="main_container">
+
+        <div class="left_col">
+            <div class="navbar nav_title">
+                {% if role_flags.view_dashboard %}
+                <a href="{% url 'dashboard' %}" class="site_title">
+                {% elif role_flags.view_member_portal %}
+                <a href="{% url 'member_portal' %}" class="site_title">
+                {% else %}
+                <a href="#" class="site_title">
+                {% endif %}
+                    <i class="fa fa-money"></i> <span>Member Billing</span>
+                </a>
+            </div>
+
+            <div class="profile clearfix">
+                <div class="profile_pic">
+                    <i class="fa fa-user-circle fa-3x"></i>
+                </div>
+                <div class="profile_info">
+                    <span>Welcome,</span>
+                    <h2>{{ request.user.username }}</h2>
+                    {% if user_roles %}<span>{{ user_roles|join:", " }}</span>{% endif %}
+                </div>
+            </div>
+
+            <div id="sidebar-menu" class="main_menu_side">
+                <div class="menu_section">
+                    <h3>Menu</h3>
+                    <ul class="nav side-menu">
+                        {% if role_flags.view_dashboard %}<li><a href="{% url 'dashboard' %}"><i class="fa fa-dashboard"></i> Dashboard</a></li>{% endif %}
+                        {% if role_flags.view_members %}<li><a href="{% url 'member_list' %}"><i class="fa fa-users"></i> Members</a></li>{% endif %}
+                        {% if role_flags.manage_members %}<li><a href="{% url 'member_create' %}"><i class="fa fa-user-plus"></i> Register Member</a></li>{% endif %}
+                        {% if role_flags.import_members %}<li><a href="{% url 'import_members' %}"><i class="fa fa-upload"></i> Import Members</a></li>{% endif %}
+                        {% if role_flags.record_payments %}<li><a href="{% url 'payment_create' %}"><i class="fa fa-credit-card"></i> Record Payment</a></li>{% endif %}
+                        {% if role_flags.view_payments %}<li><a href="{% url 'payment_list' %}"><i class="fa fa-list"></i> Payments List</a></li>{% endif %}
+                        {% if role_flags.view_payment_actions %}<li><a href="{% url 'payment_approvals' %}"><i class="fa fa-check"></i> Action Approvals</a></li>{% endif %}
+                        {% if role_flags.request_activity_funds %}<li><a href="{% url 'request_activity_fund' %}"><i class="fa fa-money"></i> Request Funds</a></li>{% endif %}
+                        {% if role_flags.view_activity_funds %}<li><a href="{% url 'activity_fund_requests' %}"><i class="fa fa-check-square-o"></i> Activity Fund Approvals</a></li>{% endif %}
+                        {% if role_flags.view_members %}<li><a href="{% url 'due_calendar' %}"><i class="fa fa-calendar"></i> Due Calendar</a></li>{% endif %}
+                        {% if role_flags.view_notifications %}<li><a href="{% url 'notification_list' %}"><i class="fa fa-envelope"></i> Notifications</a></li>{% endif %}
+                        {% if role_flags.view_audit_trail %}<li><a href="{% url 'audit_trail' %}"><i class="fa fa-history"></i> Audit Trail</a></li>{% endif %}
+                        {% if role_flags.manage_roles %}<li><a href="{% url 'role_management' %}"><i class="fa fa-user-secret"></i> Roles</a></li>{% endif %}
+                        {% if role_flags.send_reminders %}<li><a href="{% url 'bulk_reminders' %}"><i class="fa fa-bell"></i> Bulk Reminders</a></li>{% endif %}
+                        {% if role_flags.manage_reminder_settings %}<li><a href="{% url 'reminder_settings' %}"><i class="fa fa-cog"></i> Reminder Settings</a></li>{% endif %}
+                        {% if role_flags.view_members %}<li><a href="{% url 'debtors' %}"><i class="fa fa-warning"></i> Debtors</a></li>{% endif %}
+                        {% if role_flags.view_reports %}<li><a href="{% url 'reports' %}"><i class="fa fa-bar-chart"></i> Reports</a></li>{% endif %}
+                        {% if request.user.member_profile %}
+                        <li><a href="{% url 'member_portal' %}"><i class="fa fa-id-card"></i> My Portal</a></li>
+                        {% endif %}
+                        <li>
+                            <form method="post" action="{% url 'logout' %}" class="logout-form">
+                                {% csrf_token %}
+                                <button type="submit"><i class="fa fa-sign-out"></i> Logout</button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="top_nav">
+            <div class="nav_menu">
+                <div>
+                    <span class="top_label">Workspace</span>
+                    <h4>Membership Billing and Debtors Management</h4>
+                </div>
+                <div class="top_meta">
+                    <i class="fa fa-user-circle"></i> {{ request.user.username }}
+                </div>
+            </div>
+        </div>
+
+        <div class="right_col">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags|default:'info' }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+
+            {% block content %}{% endblock %}
+        </div>
+
+        <footer>
+            <div class="pull-right">Built with Django and Gentelella-style dashboard</div>
+            <div class="clearfix"></div>
+        </footer>
+    </div>
+</div>
+</div>
+<script>
+    (function () {
+        function getCookie(name) {
+            var parts = document.cookie ? document.cookie.split(";") : [];
+            for (var i = 0; i < parts.length; i += 1) {
+                var cookie = parts[i].trim();
+                if (cookie.substring(0, name.length + 1) === name + "=") {
+                    return decodeURIComponent(cookie.substring(name.length + 1));
+                }
+            }
+            return "";
+        }
+
+        document.addEventListener("submit", function (event) {
+            var form = event.target;
+            if (!form || String(form.method).toLowerCase() !== "post") {
+                return;
+            }
+
+            var token = getCookie("csrftoken");
+            var input = form.querySelector("input[name='csrfmiddlewaretoken']");
+            if (token && input) {
+                input.value = token;
+            }
+        }, true);
+    }());
+</script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+{% extends "members/base.html" %}
+{% block content %}
+<div class="page-title">
+    <div class="title_left"><h3>Member Portal</h3></div>
+</div>
+
+<div class="x_panel">
+    <div class="x_title"><h2>Account Not Linked</h2><div class="clearfix"></div></div>
+    <div class="x_content">
+        <p>This user account is not connected to a member record.</p>
+        <p>To use the portal, open the member record and choose <strong>Portal Access</strong> to link this login account.</p>
+        <a href="{% url 'member_list' %}" class="btn btn-primary">Go to Members</a>
+    </div>
+</div>
+{% endblock %}

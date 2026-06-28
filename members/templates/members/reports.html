@@ -1,0 +1,87 @@
+{% extends "members/base.html" %}
+{% load money %}
+{% block content %}
+<div class="page-title">
+    <div class="title_left"><h3>Reports</h3></div>
+    <div class="title_right text-right">
+        {% if role_flags.export_reports %}
+        <a href="{% url 'export_members_csv' %}" class="btn btn-info">Export Members</a>
+        <a href="{% url 'export_payments_csv' %}" class="btn btn-secondary">Export Payments</a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row tile_count">
+    <div class="col-md-4 tile_stats_count">
+        <span class="count_top">Total Expected</span>
+        <div class="count">{{ total_expected|ugx }}</div>
+    </div>
+    <div class="col-md-4 tile_stats_count">
+        <span class="count_top">Total Paid</span>
+        <div class="count green">{{ total_paid|ugx }}</div>
+    </div>
+    <div class="col-md-4 tile_stats_count">
+        <span class="count_top">Outstanding Balance</span>
+        <div class="count red">{{ total_balance|ugx }}</div>
+    </div>
+</div>
+
+<div class="x_panel">
+    <div class="x_title"><h2>Report Filters</h2><div class="clearfix"></div></div>
+    <div class="x_content">
+        <form method="get" class="form-inline">
+            <input type="date" name="date_from" value="{{ date_from }}" class="form-control mr-2">
+            <input type="date" name="date_to" value="{{ date_to }}" class="form-control mr-2">
+            <button class="btn btn-primary">Apply</button>
+        </form>
+    </div>
+</div>
+
+<div class="x_panel">
+    <div class="x_title"><h2>Debt Aging</h2><div class="clearfix"></div></div>
+    <div class="x_content">
+        <table class="table table-bordered">
+            <tr><th>Bucket</th><th>Amount</th></tr>
+            {% for bucket, amount in aging.items %}
+            <tr><td>{{ bucket }}</td><td>{{ amount|ugx }}</td></tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+
+<div class="x_panel">
+    <div class="x_title"><h2>Collections By Method</h2><div class="clearfix"></div></div>
+    <div class="x_content">
+        <table class="table table-bordered">
+            <tr><th>Method</th><th>Amount</th></tr>
+            {% for method, amount in collections_by_method.items %}
+            <tr><td>{{ method }}</td><td>{{ amount|ugx }}</td></tr>
+            {% empty %}
+            <tr><td colspan="2">No collections in this period.</td></tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+
+<div class="x_panel">
+    <div class="x_title"><h2>Member Billing Report</h2><div class="clearfix"></div></div>
+    <div class="x_content">
+        <table class="table table-bordered table-striped">
+            <tr><th>Member ID</th><th>Name</th><th>Plan</th><th>Next Due</th><th>Overdue</th><th>Expected</th><th>Paid</th><th>Balance</th><th>Status</th></tr>
+            {% for member in members %}
+            <tr>
+                <td>{{ member.member_id }}</td>
+                <td>{{ member.full_name }}</td>
+                <td>{{ member.get_plan_display }}</td>
+                <td>{{ member.next_due_date }}</td>
+                <td>{{ member.overdue_bucket }}</td>
+                <td>{{ member.total_expected|ugx }}</td>
+                <td>{{ member.total_paid|ugx }}</td>
+                <td>{{ member.balance|ugx }}</td>
+                <td>{{ member.status }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,146 @@
+{% extends "members/base.html" %}
+{% load money %}
+{% block content %}
+<div class="page-title">
+    <div class="title_left"><h3>{{ member.full_name }}</h3></div>
+    <div class="title_right text-right">
+        <a href="{% url 'member_statement' member.pk %}" class="btn btn-info">Statement</a>
+        {% if role_flags.record_payments %}
+        <a href="{% url 'payment_create' %}?member={{ member.pk }}" class="btn btn-success">Record Payment</a>
+        {% endif %}
+        {% if role_flags.manage_members %}
+        <a href="{% url 'member_update' member.pk %}" class="btn btn-warning">Edit Member</a>
+        {% endif %}
+        {% if role_flags.manage_member_portal_access %}
+        <a href="{% url 'member_portal_access' member.pk %}" class="btn btn-secondary">Portal Access</a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="x_panel">
+            <div class="x_title"><h2>Member Details</h2><div class="clearfix"></div></div>
+            <div class="x_content">
+                <p><strong>Member ID:</strong> {{ member.member_id }}</p>
+                <p><strong>Phone:</strong> {{ member.phone }}</p>
+                <p><strong>Email:</strong> {{ member.email }}</p>
+                <p><strong>Joined:</strong> {{ member.joined_date }}</p>
+                <p><strong>Plan:</strong> {{ member.get_plan_display }}</p>
+                {% if role_flags.manage_member_portal_access %}
+                <p><strong>Portal login:</strong> {{ member.user|default:"Not linked" }}</p>
+                {% endif %}
+                <p><strong>Next due date:</strong> {{ member.next_due_date }}</p>
+                <p><strong>Status:</strong> {{ member.status }}</p>
+                {% if role_flags.send_reminders %}
+                <form method="post" action="{% url 'send_member_reminder' member.pk %}" class="mb-2">
+                    {% csrf_token %}
+                    <input type="hidden" name="kind" value="MONTHLY_START">
+                    <button type="submit" class="btn btn-sm btn-primary">Send Reminder</button>
+                </form>
+                {% if member.plan == "FOUR_MONTHS" %}
+                <form method="post" action="{% url 'send_member_reminder' member.pk %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="kind" value="FOUR_MONTH_REMINDER">
+                    <button type="submit" class="btn btn-sm btn-secondary">Send 4-Month Reminder</button>
+                </form>
+                {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="x_panel">
+            <div class="x_title"><h2>Demand Breakdown</h2><div class="clearfix"></div></div>
+            <div class="x_content">
+                <table class="table table-bordered">
+                    <tr><th>Membership fee</th><td>{{ breakdown.joining_fee|ugx }}</td></tr>
+                    <tr><th>Subscription calculation</th><td>{{ breakdown.subscription_text }}</td></tr>
+                    <tr><th>Subscription charge</th><td>{{ breakdown.subscription_charge|ugx }}</td></tr>
+                    <tr><th>Total expected</th><td>{{ breakdown.expected|ugx }}</td></tr>
+                    <tr><th>Total paid</th><td>{{ breakdown.paid|ugx }}</td></tr>
+                    <tr><th>Balance demanded</th><td class="red"><strong>{{ breakdown.balance|ugx }}</strong></td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="x_panel">
+    <div class="x_title"><h2>Payment History</h2><div class="clearfix"></div></div>
+    <div class="x_content">
+        <table class="table table-striped">
+            <tr><th>Date</th><th>Amount</th><th>Received By</th><th>Note</th><th>Actions</th></tr>
+            {% for payment in payments %}
+            <tr>
+                <td>{{ payment.payment_date }}</td>
+                <td>{{ payment.amount|ugx }}</td>
+                <td>{{ payment.received_by }}</td>
+                <td>{{ payment.note }}</td>
+                <td>
+                    <a href="{% url 'payment_receipt' payment.pk %}" class="btn btn-sm btn-outline-info">Receipt</a>
+                    {% if role_flags.request_payment_actions %}
+                    <a href="{% url 'payment_update' payment.pk %}" class="btn btn-sm btn-warning">Edit</a>
+                    <a href="{% url 'payment_refund' payment.pk %}" class="btn btn-sm btn-secondary">Refund</a>
+                    <a href="{% url 'payment_delete' payment.pk %}" class="btn btn-sm btn-danger">Delete</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5">No payments recorded.</td></tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+
+<div class="x_panel">
+    <div class="x_title"><h2>Staff Notes</h2><div class="clearfix"></div></div>
+    <div class="x_content">
+        <form method="post" action="{% url 'add_member_note' member.pk %}" class="mb-3">
+            {% csrf_token %}
+            {% for field in note_form %}
+                <div class="form-group">
+                    <label>{{ field.label }}</label>
+                    {{ field }}
+                </div>
+            {% endfor %}
+            <button class="btn btn-success">Add Note</button>
+        </form>
+        <table class="table table-striped">
+            <tr><th>Date</th><th>By</th><th>Note</th><th>Follow Up</th><th>Status</th></tr>
+            {% for note in notes %}
+            <tr>
+                <td>{{ note.created_at }}</td>
+                <td>{{ note.created_by|default:"" }}</td>
+                <td>{{ note.note }}</td>
+                <td>{{ note.follow_up_date|default:"" }}</td>
+                <td>{{ note.get_status_display }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5">No staff notes yet.</td></tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+
+<div class="x_panel">
+    <div class="x_title"><h2>Recent Notifications</h2><div class="clearfix"></div></div>
+    <div class="x_content">
+        <table class="table table-striped">
+            <tr><th>Date</th><th>Channel</th><th>Type</th><th>Status</th><th>Error</th></tr>
+            {% for item in notifications %}
+            <tr>
+                <td>{{ item.created_at }}</td>
+                <td>{{ item.get_channel_display }}</td>
+                <td>{{ item.get_kind_display }}</td>
+                <td>{{ item.get_status_display }}</td>
+                <td>{{ item.error }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5">No notifications yet.</td></tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+{% endblock %}

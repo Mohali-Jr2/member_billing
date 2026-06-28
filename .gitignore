@@ -1,0 +1,6 @@
+db.sqlite3
+staticfiles/
+*.log
+__pycache__/
+*.pyc
+.vercel/

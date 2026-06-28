@@ -1,0 +1,29 @@
+{% extends "members/base.html" %}
+{% block content %}
+<div class="page-title">
+    <div class="title_left">
+        <h3>Project Report</h3>
+    </div>
+</div>
+
+<div class="x_panel">
+    <div class="x_title">
+        <h2>{{ report_name }}</h2>
+        <div class="clearfix"></div>
+    </div>
+    <div class="x_content">
+        <p class="mb-2">
+            Download the Word document for the Smart Water Metering System final year report.
+        </p>
+        <p class="text-muted">
+            File: {{ file_name }}
+            {% if file_size_kb %}
+                · Size: {{ file_size_kb }} KB
+            {% endif %}
+        </p>
+        <a href="{% url 'download_smart_water_report' %}" class="btn btn-primary">
+            <i class="fa fa-download"></i> Download Word Report
+        </a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends "members/base.html" %}
+{% block content %}
+<div class="page-title">
+    <div class="title_left"><h3>Import Members</h3></div>
+</div>
+
+<div class="x_panel">
+    <div class="x_content">
+        <p class="text-muted">Upload a CSV or XLSX Excel file with columns: full_name, phone, email, plan. Existing members are matched by telephone number.</p>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.file }}
+            {% if form.file.errors %}<div class="text-danger">{{ form.file.errors }}</div>{% endif %}
+            <button class="btn btn-success mt-3">Import Members</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

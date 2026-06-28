@@ -1,0 +1,65 @@
+{% extends "members/base.html" %}
+{% block content %}
+<div class="page-title">
+    <div class="title_left"><h3>{{ title }}</h3></div>
+</div>
+
+<div class="x_panel">
+    <div class="x_content">
+        <form method="post" novalidate>
+            {% csrf_token %}
+
+            {% for field in form %}
+                <div class="form-group">
+                    <label>{{ field.label }}</label>
+                    {% if field.name == "member" %}
+                        <input type="text" class="form-control mb-2 member-search-input" placeholder="Search member by name, phone, or ID" autocomplete="off">
+                    {% endif %}
+                    {{ field }}
+                    {% if field.errors %}
+                        <div class="text-danger">{{ field.errors }}</div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+
+            <button type="submit" class="btn btn-success">{{ button }}</button>
+            {% if cancel_url and cancel_pk %}
+                <a href="{% url cancel_url cancel_pk %}" class="btn btn-secondary">Cancel</a>
+            {% else %}
+                <a href="{% url 'dashboard' %}" class="btn btn-secondary">Cancel</a>
+            {% endif %}
+        </form>
+    </div>
+</div>
+<script>
+    (function () {
+        var searches = document.querySelectorAll(".member-search-input");
+
+        searches.forEach(function (search) {
+            var select = search.parentElement.querySelector(".member-search-select");
+            var originalOptions = select ? Array.prototype.slice.call(select.options) : [];
+
+            if (!select) {
+                return;
+            }
+
+            search.addEventListener("input", function () {
+                var query = search.value.trim().toLowerCase();
+                var selectedValue = select.value;
+
+                select.innerHTML = "";
+                originalOptions.forEach(function (option) {
+                    var matches = !query || option.text.toLowerCase().indexOf(query) !== -1;
+                    if (matches) {
+                        select.appendChild(option);
+                    }
+                });
+
+                if (Array.prototype.some.call(select.options, function (option) { return option.value === selectedValue; })) {
+                    select.value = selectedValue;
+                }
+            });
+        });
+    }());
+</script>
+{% endblock %}

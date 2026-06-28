@@ -1,0 +1,35 @@
+{% extends "members/base.html" %}
+{% load money %}
+{% block content %}
+<div class="page-title">
+    <div class="title_left"><h3>Payment Receipt</h3></div>
+    <div class="title_right text-right">
+        <button onclick="window.print()" class="btn btn-info">Print</button>
+        <a href="{% url 'member_detail' payment.member.pk %}" class="btn btn-secondary">Member</a>
+        {% if role_flags.request_payment_actions %}
+        <a href="{% url 'payment_delete' payment.pk %}" class="btn btn-danger">Delete</a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="x_panel printable receipt">
+    <div class="x_title"><h2>Receipt #{{ payment.pk }}</h2><div class="clearfix"></div></div>
+    <div class="x_content">
+        <p><strong>Receipt date:</strong> {{ today }}</p>
+        <p><strong>Member:</strong> {{ payment.member.full_name }}</p>
+        <p><strong>Payment date:</strong> {{ payment.payment_date }}</p>
+        <p><strong>Amount received:</strong> {{ payment.amount|ugx }}</p>
+        <p><strong>Method:</strong> {{ payment.get_method_display }}</p>
+        <p><strong>Reference:</strong> {{ payment.reference }}</p>
+        <p><strong>Status:</strong> {{ payment.get_status_display }}</p>
+        {% if payment.refunded_amount %}
+        <p><strong>Refunded:</strong> {{ payment.refunded_amount|ugx }}</p>
+        <p><strong>Refund reason:</strong> {{ payment.refund_reason }}</p>
+        {% endif %}
+        <p><strong>Received by:</strong> {{ payment.received_by }}</p>
+        <p><strong>Note:</strong> {{ payment.note }}</p>
+        <hr>
+        <p><strong>Current balance:</strong> {{ payment.member.balance|ugx }}</p>
+    </div>
+</div>
+{% endblock %}

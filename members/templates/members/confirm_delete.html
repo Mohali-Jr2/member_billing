@@ -1,0 +1,22 @@
+{% extends "members/base.html" %}
+{% block content %}
+<div class="page-title">
+    <div class="title_left"><h3>{{ title }}</h3></div>
+</div>
+
+<div class="x_panel">
+    <div class="x_content">
+        <p>Use this only when a payment was recorded by mistake or attached to the wrong member.</p>
+        <p><strong>{{ object }}</strong></p>
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label>Reason</label>
+                <textarea name="reason" class="form-control" rows="3" placeholder="Example: Payment was entered against the wrong member"></textarea>
+            </div>
+            <button type="submit" class="btn btn-danger">Delete Unintended Payment</button>
+            <a href="{% url 'payment_list' %}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,100 @@
+{% extends "members/base.html" %}
+{% block content %}
+<div class="page-title">
+    <div class="title_left"><h3>Action Approvals</h3></div>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <a href="{% url 'payment_approvals' %}?status=PENDING" class="tile-stats">
+            <div class="count">{{ status_counts.PENDING }}</div>
+            <h3>Pending</h3>
+            <p>Requests waiting for approval</p>
+        </a>
+    </div>
+    <div class="col-md-4">
+        <a href="{% url 'payment_approvals' %}?status=APPROVED" class="tile-stats">
+            <div class="count">{{ status_counts.APPROVED }}</div>
+            <h3>Approved</h3>
+            <p>Requests already accepted</p>
+        </a>
+    </div>
+    <div class="col-md-4">
+        <a href="{% url 'payment_approvals' %}?status=REJECTED" class="tile-stats">
+            <div class="count">{{ status_counts.REJECTED }}</div>
+            <h3>Rejected</h3>
+            <p>Requests not accepted</p>
+        </a>
+    </div>
+</div>
+
+<div class="x_panel">
+    <div class="x_title"><h2>Search and Sort Action Requests</h2><div class="clearfix"></div></div>
+    <div class="x_content">
+        <form method="get" class="form-inline mb-0">
+            <input type="text" name="q" value="{{ query }}" class="form-control mr-2" placeholder="Search member, ID, requester, or reason">
+            <select name="action" class="form-control mr-2">
+                <option value="" {% if not action %}selected{% endif %}>All actions</option>
+                {% for value, label in action_choices %}
+                    <option value="{{ value }}" {% if action == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            <select name="status" class="form-control mr-2">
+                <option value="" {% if not status %}selected{% endif %}>All statuses</option>
+                {% for value, label in status_choices %}
+                    <option value="{{ value }}" {% if status == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn btn-primary">Filter</button>
+            {% if query or action or status %}
+                <a href="{% url 'payment_approvals' %}" class="btn btn-secondary ml-2">Clear</a>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+<div class="x_panel">
+    <div class="x_title"><h2>Operational Action Requests</h2><div class="clearfix"></div></div>
+    <div class="x_content">
+        <table class="table table-bordered table-striped">
+            <tr><th>Date</th><th>Payment</th><th>Action</th><th>Status</th><th>Requested By</th><th>Reason</th><th>Review</th></tr>
+            {% for approval in approvals %}
+            <tr>
+                <td>{{ approval.created_at }}</td>
+                <td>{{ approval.payment }}</td>
+                <td>{{ approval.get_action_display }}</td>
+                <td>
+                    {% if approval.status == "APPROVED" %}
+                        <span class="badge badge-success">{{ approval.get_status_display }}</span>
+                    {% elif approval.status == "REJECTED" %}
+                        <span class="badge badge-danger">{{ approval.get_status_display }}</span>
+                    {% else %}
+                        <span class="badge badge-warning">{{ approval.get_status_display }}</span>
+                    {% endif %}
+                </td>
+                <td>{{ approval.requested_by }}</td>
+                <td>{{ approval.reason }}</td>
+                <td>
+                    {% if role_flags.approve_payment_actions and approval.status == "PENDING" %}
+                    <form method="post" action="{% url 'review_payment_approval' approval.pk 'approve' %}" class="d-inline">
+                        {% csrf_token %}
+                        <button class="btn btn-sm btn-success">Approve</button>
+                    </form>
+                    <form method="post" action="{% url 'review_payment_approval' approval.pk 'reject' %}" class="d-inline">
+                        {% csrf_token %}
+                        <button class="btn btn-sm btn-danger">Reject</button>
+                    </form>
+                    {% elif approval.status == "PENDING" %}
+                    Waiting for approval
+                    {% else %}
+                    Reviewed by {{ approval.reviewed_by }}
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7">No approval requests.</td></tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends "members/base.html" %}
+{% load money %}
+{% block content %}
+<div class="page-title">
+    <div class="title_left"><h3>Member Statement</h3></div>
+    <div class="title_right text-right">
+        <button onclick="window.print()" class="btn btn-info">Print</button>
+    </div>
+</div>
+
+<div class="x_panel printable">
+    <div class="x_title"><h2>{{ member.full_name }}</h2><div class="clearfix"></div></div>
+    <div class="x_content">
+        <p><strong>Date:</strong> {{ today }}</p>
+        <p><strong>Member ID:</strong> {{ member.member_id }}</p>
+        <p><strong>Phone:</strong> {{ member.phone }}</p>
+        <p><strong>Email:</strong> {{ member.email }}</p>
+        <p><strong>Plan:</strong> {{ member.get_plan_display }}</p>
+        <p><strong>Next due date:</strong> {{ member.next_due_date }}</p>
+
+        <table class="table table-bordered">
+            <tr><th>Membership fee</th><td>{{ breakdown.joining_fee|ugx }}</td></tr>
+            <tr><th>Subscription calculation</th><td>{{ breakdown.subscription_text }}</td></tr>
+            <tr><th>Subscription charge</th><td>{{ breakdown.subscription_charge|ugx }}</td></tr>
+            <tr><th>Total expected</th><td>{{ breakdown.expected|ugx }}</td></tr>
+            <tr><th>Total paid</th><td>{{ breakdown.paid|ugx }}</td></tr>
+            <tr><th>Balance</th><td>{{ breakdown.balance|ugx }}</td></tr>
+        </table>
+
+        <h4>Payments</h4>
+        <table class="table table-striped">
+            <tr><th>Date</th><th>Amount</th><th>Received By</th><th>Note</th></tr>
+            {% for payment in payments %}
+            <tr>
+                <td>{{ payment.payment_date }}</td>
+                <td>{{ payment.amount|ugx }}</td>
+                <td>{{ payment.received_by }}</td>
+                <td>{{ payment.note }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4">No payments recorded.</td></tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+{% endblock %}

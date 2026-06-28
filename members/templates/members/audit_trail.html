@@ -1,0 +1,44 @@
+{% extends "members/base.html" %}
+{% block content %}
+<div class="page-title">
+    <div class="title_left"><h3>Audit Trail</h3></div>
+</div>
+
+<div class="x_panel">
+    <div class="x_content">
+        <form method="get" class="form-inline mb-3">
+            <input type="text" name="q" value="{{ query }}" class="form-control mr-2" placeholder="Search user, record, or details">
+            <select name="action" class="form-control mr-2">
+                <option value="">All actions</option>
+                {% for value, label in action_choices %}
+                    <option value="{{ value }}" {% if action == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            <button class="btn btn-primary">Filter</button>
+        </form>
+
+        <table class="table table-bordered table-striped">
+            <tr>
+                <th>Date</th>
+                <th>User</th>
+                <th>Action</th>
+                <th>Record</th>
+                <th>Details</th>
+                <th>IP Address</th>
+            </tr>
+            {% for log in logs %}
+            <tr>
+                <td>{{ log.created_at }}</td>
+                <td>{{ log.user|default:"System" }}</td>
+                <td>{{ log.get_action_display }}</td>
+                <td>{{ log.object_type }} {% if log.object_repr %}- {{ log.object_repr }}{% endif %}</td>
+                <td>{{ log.details }}</td>
+                <td>{{ log.ip_address|default:"" }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6">No audit activity has been recorded yet.</td></tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+{% endblock %}

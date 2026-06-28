@@ -1,0 +1,86 @@
+{% extends "members/base.html" %}
+{% load money %}
+{% block content %}
+<div class="page-title">
+    <div class="title_left"><h3>Bulk Reminders</h3></div>
+</div>
+
+<div class="x_panel">
+    <div class="x_content">
+        <form method="get" class="form-inline mb-3">
+            <label class="mr-2">Show members</label>
+            <select name="plan" class="form-control mr-2" onchange="this.form.submit()">
+                <option value="" {% if not selected_plan %}selected{% endif %}>All plans</option>
+                {% for value, label in plan_choices %}
+                    <option value="{{ value }}" {% if selected_plan == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn btn-primary">Filter</button>
+            <span class="ml-3 text-muted">Showing {{ members|length }} member(s) with outstanding balances only.</span>
+        </form>
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label>Message type</label>
+                <select name="kind" id="reminder-kind" class="form-control">
+                    <option value="MONTHLY_START">New month reminder</option>
+                    <option value="FOUR_MONTH_REMINDER">4-month reminder</option>
+                </select>
+            </div>
+            <div class="alert alert-info">
+                <strong>Subject:</strong> <span id="reminder-subject">{{ monthly_template.subject }}</span>
+                <hr>
+                <strong>Message template:</strong>
+                <p id="reminder-body" class="mb-0">{{ monthly_template.body }}</p>
+                {% if preview_member %}
+                    <hr>
+                    <strong>Example sent to {{ preview_member.full_name }}:</strong>
+                    <p id="reminder-example" class="mb-0">{{ monthly_preview }}</p>
+                {% endif %}
+            </div>
+            <div id="monthly-template" data-subject="{{ monthly_template.subject }}" data-body="{{ monthly_template.body }}" data-example="{{ monthly_preview }}" hidden></div>
+            <div id="four-month-template" data-subject="{{ four_month_template.subject }}" data-body="{{ four_month_template.body }}" data-example="{{ four_month_preview }}" hidden></div>
+            <table class="table table-bordered table-striped">
+                <tr><th>Select</th><th>Member ID</th><th>Member</th><th>Plan</th><th>Phone</th><th>Email</th><th>Balance</th><th>Overdue</th></tr>
+                {% for member in members %}
+                <tr>
+                    <td><input type="checkbox" name="member_ids" value="{{ member.pk }}" checked></td>
+                    <td>{{ member.member_id }}</td>
+                    <td><a href="{% url 'member_detail' member.pk %}">{{ member.full_name }}</a></td>
+                    <td>{{ member.get_plan_display }}</td>
+                    <td>{{ member.phone }}</td>
+                    <td>{{ member.email }}</td>
+                    <td>{{ member.balance|ugx }}</td>
+                    <td>{{ member.overdue_bucket }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="8">No members currently owe money for this selection.</td></tr>
+                {% endfor %}
+            </table>
+            <button type="submit" class="btn btn-success">Send Selected Reminders</button>
+        </form>
+    </div>
+</div>
+<script>
+    (function () {
+        var kind = document.getElementById("reminder-kind");
+        var subject = document.getElementById("reminder-subject");
+        var body = document.getElementById("reminder-body");
+        var example = document.getElementById("reminder-example");
+
+        function updatePreview() {
+            var templateId = kind.value === "FOUR_MONTH_REMINDER" ? "four-month-template" : "monthly-template";
+            var template = document.getElementById(templateId);
+            subject.textContent = template.getAttribute("data-subject") || "";
+            body.textContent = template.getAttribute("data-body") || "";
+            if (example) {
+                example.textContent = template.getAttribute("data-example") || "";
+            }
+        }
+
+        kind.addEventListener("change", updatePreview);
+        updatePreview();
+    }());
+</script>
+{% endblock %}

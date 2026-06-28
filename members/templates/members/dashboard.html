@@ -1,0 +1,95 @@
+{% extends "members/base.html" %}
+{% load money %}
+{% block content %}
+<div class="page-title">
+    <div class="title_left"><h3>Dashboard</h3></div>
+</div>
+
+<div class="row tile_count">
+    <div class="col-md-6 col-sm-6 tile_stats_count">
+        <span class="count_top"><i class="fa fa-calendar-o"></i> Monthly Plan Members</span>
+        <div class="count">{{ monthly_members }}</div>
+    </div>
+    <div class="col-md-6 col-sm-6 tile_stats_count">
+        <span class="count_top"><i class="fa fa-calendar-check-o"></i> 4-Month Plan Members</span>
+        <div class="count">{{ four_month_members }}</div>
+    </div>
+</div>
+
+<div class="row tile_count">
+    <div class="col-md-3 col-sm-6 tile_stats_count">
+        <span class="count_top"><i class="fa fa-users"></i> Total Members</span>
+        <div class="count">{{ total_members }}</div>
+    </div>
+    <div class="col-md-3 col-sm-6 tile_stats_count">
+        <span class="count_top"><i class="fa fa-warning"></i> Debtors</span>
+        <div class="count red">{{ total_debtors }}</div>
+    </div>
+    <div class="col-md-3 col-sm-6 tile_stats_count">
+        <span class="count_top"><i class="fa fa-check"></i> Total Paid</span>
+        <div class="count green">{{ total_paid|ugx }}</div>
+    </div>
+    <div class="col-md-3 col-sm-6 tile_stats_count">
+        <span class="count_top"><i class="fa fa-money"></i> Total Demand</span>
+        <div class="count red">{{ total_balance|ugx }}</div>
+    </div>
+</div>
+
+<div class="row tile_count">
+    <div class="col-md-4 col-sm-6 tile_stats_count">
+        <span class="count_top"><i class="fa fa-bell"></i> Reminders Due Today</span>
+        <div class="count">{{ reminders_due_today }}</div>
+    </div>
+    <div class="col-md-4 col-sm-6 tile_stats_count">
+        <span class="count_top"><i class="fa fa-calendar"></i> Due This Week</span>
+        <div class="count">{{ due_this_week }}</div>
+    </div>
+    <div class="col-md-4 col-sm-6 tile_stats_count">
+        <span class="count_top"><i class="fa fa-exclamation-circle"></i> Failed Messages</span>
+        <div class="count red">{{ failed_notifications }}</div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="x_panel">
+            <div class="x_title"><h2>Recent Members</h2><div class="clearfix"></div></div>
+            <div class="x_content">
+                <table class="table table-striped">
+                    <tr><th>Member ID</th><th>Name</th><th>Joined</th><th>Balance</th></tr>
+                    {% for member in recent_members %}
+                    <tr>
+                        <td>{{ member.member_id }}</td>
+                        <td><a href="{% url 'member_detail' member.pk %}">{{ member.full_name }}</a></td>
+                        <td>{{ member.joined_date }}</td>
+                        <td>{{ member.balance|ugx }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="4">No members yet.</td></tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="x_panel">
+            <div class="x_title"><h2>Recent Payments</h2><div class="clearfix"></div></div>
+            <div class="x_content">
+                <table class="table table-striped">
+                    <tr><th>Member</th><th>Date</th><th>Amount</th></tr>
+                    {% for payment in recent_payments %}
+                    <tr>
+                        <td>{{ payment.member.full_name }}</td>
+                        <td>{{ payment.payment_date }}</td>
+                        <td>{{ payment.amount|ugx }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="3">No payments yet.</td></tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

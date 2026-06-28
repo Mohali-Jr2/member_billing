@@ -1,0 +1,68 @@
+{% extends "members/base.html" %}
+{% block content %}
+<div class="page-title">
+    <div class="title_left"><h3>Reminder Settings</h3></div>
+</div>
+
+<form method="post" novalidate>
+    {% csrf_token %}
+    <div class="x_panel">
+        <div class="x_title"><h2>Channels</h2><div class="clearfix"></div></div>
+        <div class="x_content">
+            {% for field in setting_form %}
+                <div class="form-group">
+                    <label>{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}<div class="text-danger">{{ field.errors }}</div>{% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="x_panel">
+        <div class="x_title"><h2>New Month Message</h2><div class="clearfix"></div></div>
+        <div class="x_content">
+            {% for field in monthly_form %}
+                <div class="form-group">
+                    <label>{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}<div class="text-danger">{{ field.errors }}</div>{% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="x_panel">
+        <div class="x_title"><h2>4-Month Message</h2><div class="clearfix"></div></div>
+        <div class="x_content">
+            {% for field in four_month_form %}
+                <div class="form-group">
+                    <label>{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}<div class="text-danger">{{ field.errors }}</div>{% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="x_panel">
+        <div class="x_title"><h2>Payment Confirmation Message</h2><div class="clearfix"></div></div>
+        <div class="x_content">
+            {% for field in payment_form %}
+                <div class="form-group">
+                    <label>{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}<div class="text-danger">{{ field.errors }}</div>{% endif %}
+                </div>
+            {% endfor %}
+            <p class="text-muted">
+                Payment placeholders: {payment_amount}, {payment_date}, {payment_method}
+            </p>
+        </div>
+    </div>
+
+    <p class="text-muted">Member placeholders: {full_name}, {member_id}, {balance}, {next_due_date}, {plan}, {phone}, {email}</p>
+
+    <button type="submit" class="btn btn-success">Save Settings</button>
+</form>
+{% endblock %}

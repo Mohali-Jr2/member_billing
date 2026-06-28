@@ -1,0 +1,48 @@
+{% extends "members/base.html" %}
+{% load money %}
+{% block content %}
+<div class="page-title">
+    <div class="title_left"><h3>Payments</h3></div>
+    <div class="title_right text-right">
+        {% if role_flags.export_reports %}
+        <a href="{% url 'export_payments_csv' %}" class="btn btn-info">Export CSV</a>
+        {% endif %}
+        {% if role_flags.record_payments %}
+        <a href="{% url 'payment_create' %}" class="btn btn-success">Record Payment</a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="x_panel">
+    <div class="x_content">
+        <form method="get" class="form-inline mb-3">
+            <input type="text" name="q" value="{{ query }}" class="form-control mr-2" placeholder="Search by member or receiver">
+            <button class="btn btn-primary">Search</button>
+        </form>
+        <table class="table table-bordered table-striped">
+            <tr><th>Member</th><th>Date</th><th>Amount</th><th>Method</th><th>Reference</th><th>Status</th><th>Received By</th><th>Actions</th></tr>
+            {% for payment in payments %}
+            <tr>
+                <td><a href="{% url 'member_detail' payment.member.pk %}">{{ payment.member.full_name }}</a></td>
+                <td>{{ payment.payment_date }}</td>
+                <td>{{ payment.amount|ugx }}</td>
+                <td>{{ payment.get_method_display }}</td>
+                <td>{{ payment.reference }}</td>
+                <td>{{ payment.get_status_display }}</td>
+                <td>{{ payment.received_by }}</td>
+                <td>
+                    <a href="{% url 'payment_receipt' payment.pk %}" class="btn btn-sm btn-outline-info">Receipt</a>
+                    {% if role_flags.request_payment_actions %}
+                    <a href="{% url 'payment_update' payment.pk %}" class="btn btn-sm btn-warning">Edit</a>
+                    <a href="{% url 'payment_refund' payment.pk %}" class="btn btn-sm btn-secondary">Refund</a>
+                    <a href="{% url 'payment_delete' payment.pk %}" class="btn btn-sm btn-danger">Delete</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="8">No payments found.</td></tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+{% endblock %}
